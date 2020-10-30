@@ -1,0 +1,15 @@
+<%# 
+TODO
+Namn
+Kommentar
+Datum
+ %>
+<h1>Guestbook</h1>
+
+mix phx.gen.schema Comment comments name:string text:string
+
+
+Comment
+- name
+- text
+- posted_at
