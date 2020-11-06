@@ -10,19 +10,27 @@ defmodule FeelgoodWeb.CommentController do
   end
 
   def new(conn, _params) do
-    changeset = Guestbook.change_comment(%Comment{})
-    render(conn, "new.html", changeset: changeset)
+    if conn.assigns[:current_user] do
+      changeset = Guestbook.change_comment(%Comment{})
+      render(conn, "new.html", changeset: changeset)
+    else
+      unauthorized(conn)
+    end
   end
 
   def create(conn, %{"comment" => comment_params}) do
-    case Guestbook.create_comment(comment_params) do
-      {:ok, comment} ->
-        conn
-        |> put_flash(:info, "Comment created successfully.")
-        |> redirect(to: Routes.comment_path(conn, :show, comment))
+    if conn.assigns[:current_user] do
+      case Guestbook.create_comment(comment_params) do
+        {:ok, comment} ->
+          conn
+          |> put_flash(:info, "Comment created successfully.")
+          |> redirect(to: Routes.comment_path(conn, :show, comment))
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        {:error, %Ecto.Changeset{} = changeset} ->
+          render(conn, "new.html", changeset: changeset)
+      end
+    else
+      unauthorized(conn)
     end
   end
 
@@ -32,31 +40,50 @@ defmodule FeelgoodWeb.CommentController do
   end
 
   def edit(conn, %{"id" => id}) do
-    comment = Guestbook.get_comment!(id)
-    changeset = Guestbook.change_comment(comment)
-    render(conn, "edit.html", comment: comment, changeset: changeset)
+    if conn.assigns[:current_user] do
+      comment = Guestbook.get_comment!(id)
+      changeset = Guestbook.change_comment(comment)
+      render(conn, "edit.html", comment: comment, changeset: changeset)
+    else
+      unauthorized(conn)
+    end
   end
 
   def update(conn, %{"id" => id, "comment" => comment_params}) do
-    comment = Guestbook.get_comment!(id)
+    if conn.assigns[:current_user] do
+      comment = Guestbook.get_comment!(id)
 
-    case Guestbook.update_comment(comment, comment_params) do
-      {:ok, comment} ->
-        conn
-        |> put_flash(:info, "Comment updated successfully.")
-        |> redirect(to: Routes.comment_path(conn, :show, comment))
+      case Guestbook.update_comment(comment, comment_params) do
+        {:ok, comment} ->
+          conn
+          |> put_flash(:info, "Comment updated successfully.")
+          |> redirect(to: Routes.comment_path(conn, :show, comment))
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", comment: comment, changeset: changeset)
+        {:error, %Ecto.Changeset{} = changeset} ->
+          render(conn, "edit.html", comment: comment, changeset: changeset)
+      end
+    else
+      unauthorized(conn)
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    comment = Guestbook.get_comment!(id)
-    {:ok, _comment} = Guestbook.delete_comment(comment)
+    if conn.assigns[:current_user] do
+      comment = Guestbook.get_comment!(id)
+      {:ok, _comment} = Guestbook.delete_comment(comment)
 
+      conn
+      |> put_flash(:info, "Comment deleted successfully.")
+      |> redirect(to: Routes.comment_path(conn, :index))
+    else
+      unauthorized(conn)
+    end
+  end
+
+  defp unauthorized(conn) do
     conn
-    |> put_flash(:info, "Comment deleted successfully.")
-    |> redirect(to: Routes.comment_path(conn, :index))
+    |> put_status(403)
+    |> put_view(FeelgoodWeb.ErrorView)
+    |> render(:"403")
   end
 end
