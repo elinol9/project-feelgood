@@ -4,6 +4,7 @@ defmodule Feelgood.Accounts.User do
 
   @derive {Inspect, except: [:password]}
   schema "users" do
+    field :name, :string
     field :email, :string
     field :password, :string, virtual: true
     field :hashed_password, :string
