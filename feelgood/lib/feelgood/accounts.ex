@@ -94,6 +94,10 @@ defmodule Feelgood.Accounts do
 
   ## Settings
 
+  def change_user_name(user, attrs \\ %{}) do
+    User.name_changeset(user, attrs)
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user email.
 
@@ -127,12 +131,12 @@ defmodule Feelgood.Accounts do
     |> Ecto.Changeset.apply_action(:update)
   end
 
-  @doc """
-  Updates the user email using the given token.
+  def update_user_name(user, name) do
+    user
+    |> User.name_changeset(%{name: name})
+    |> Repo.update()
+  end
 
-  If the token matches, the user email is updated and the token is deleted.
-  The confirmed_at date is also updated to the current time.
-  """
   def update_user_email(user, token) do
     context = "change:#{user.email}"
 

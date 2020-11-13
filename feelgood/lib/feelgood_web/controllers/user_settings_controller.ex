@@ -4,10 +4,26 @@ defmodule FeelgoodWeb.UserSettingsController do
   alias Feelgood.Accounts
   alias FeelgoodWeb.UserAuth
 
-  plug :assign_email_and_password_changesets
+  plug :assign_changesets
 
   def edit(conn, _params) do
     render(conn, "edit.html")
+  end
+
+  # %{"_csrf_token" => "NSxLeE4AXiplRiheGBZQBiA_PHgtOyMzrVzUyc8PHve3_W1vgSX0xZIy", "_method" => "put", "user" => %{"name" => "Lars Wikman"}}
+
+  def update_name(conn, %{"user" => %{"name" => name}}) do
+    case Accounts.update_user_name(conn.assigns.current_user, name) do
+      {:ok, _} ->
+        conn
+        |> put_flash(:info, "Name changed successfully.")
+        |> redirect(to: Routes.user_settings_path(conn, :edit))
+
+      {:error, _}->
+        conn
+        |> put_flash(:error, "Could not change name.")
+        |> redirect(to: Routes.user_settings_path(conn, :edit))
+    end
   end
 
   def update_email(conn, %{"current_password" => password, "user" => user_params}) do
@@ -62,11 +78,12 @@ defmodule FeelgoodWeb.UserSettingsController do
     end
   end
 
-  defp assign_email_and_password_changesets(conn, _opts) do
+  defp assign_changesets(conn, _opts) do
     user = conn.assigns.current_user
 
     conn
     |> assign(:email_changeset, Accounts.change_user_email(user))
     |> assign(:password_changeset, Accounts.change_user_password(user))
+    |> assign(:name_changeset, Accounts.change_user_name(user))
   end
 end

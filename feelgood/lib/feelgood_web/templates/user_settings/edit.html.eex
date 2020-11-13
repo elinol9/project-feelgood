@@ -1,5 +1,23 @@
 <h1>Settings</h1>
 
+<h3>Change name</h3>
+
+<%= form_for @name_changeset, Routes.user_settings_path(@conn, :update_name), fn f -> %>
+  <%= if @name_changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <%= label f, :name %>
+  <%= text_input f, :name, required: true %>
+  <%= error_tag f, :name %>
+
+  <div>
+    <%= submit "Change name" %>
+  </div>
+<% end %>
+
 <h3>Change email</h3>
 
 <%= form_for @email_changeset, Routes.user_settings_path(@conn, :update_email), fn f -> %>

@@ -1,3 +1,13 @@
+- Databasen (eh, via migrations mest)
+- Ecto Repo
+- Ecto Schemas
+- Ecto Changesets
+- Context-moduler (Accounts/Guestbook), separerar system, t.ex. DB från webb-specifikt
+- Controllers för Webb-logik
+- Views för att välja templates (+ lite annat)
+- Templates
+
+
 # Feelgood
 
 To start your Phoenix server:
