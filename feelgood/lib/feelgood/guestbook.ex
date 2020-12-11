@@ -34,8 +34,14 @@ defmodule Feelgood.Guestbook do
       iex> get_comment!(456)
       ** (Ecto.NoResultsError)
 
+      Repo.get(User, user.id) |> Repo.preload(:posts)
+
   """
-  def get_comment!(id), do: Repo.get!(Comment, id)
+  def get_comment!(id) do
+    Comment
+    |> Repo.get!(id)
+    |> Repo.preload(:user)
+  end
 
   @doc """
   Creates a comment.
@@ -49,7 +55,8 @@ defmodule Feelgood.Guestbook do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_comment(attrs \\ %{}) do
+  def create_comment(%{id: user_id} = _user, attrs \\ %{}) do
+    attrs = Map.put(attrs, "user_id", user_id)
     %Comment{}
     |> Comment.changeset(attrs)
     |> Repo.insert()

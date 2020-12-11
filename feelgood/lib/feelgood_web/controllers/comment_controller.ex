@@ -20,7 +20,7 @@ defmodule FeelgoodWeb.CommentController do
 
   def create(conn, %{"comment" => comment_params}) do
     if conn.assigns[:current_user] do
-      case Guestbook.create_comment(comment_params) do
+      case Guestbook.create_comment(conn.assigns[:current_user], comment_params) do
         {:ok, comment} ->
           conn
           |> put_flash(:info, "Comment created successfully.")
